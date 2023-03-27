@@ -16,8 +16,9 @@ describe("GET /api/topics", () => {
     test("responds with an array of topic objects with slug and description properties", () => {
         return request(app)
             .get("/api/topics")
+            .expect(200)
             .then((result) => {
-                expect(result.status).toBe(200);
+                expect(result.body.length).toBe(3);
                 expect(Array.isArray(result.body)).toBe(true);
                 result.body.forEach((topic) => {
                     expect(topic).toHaveProperty("slug");
@@ -35,7 +36,6 @@ test("responds with an array of topic objects with at least one topic", () => {
         .then((result) => {
             expect(result.status).toBe(200);
             expect(Array.isArray(result.body)).toBe(true);
-            expect(result.body.length).toBeGreaterThan(0);
         });
 });
 test("handles invalid endpoints", () => {
