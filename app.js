@@ -1,9 +1,9 @@
 const express = require("express");
 const app = express();
-const { sendBooks, invalidEndpoint } = require("./controller/get.controller");
+const { sendTopics, invalidEndpoint } = require("./controller/get.controller");
 app.use(express.json());
 
-app.get("/api/topics", sendBooks)
+app.get("/api/topics", sendTopics)
 
 app.all("/*", invalidEndpoint)
 module.exports = app
