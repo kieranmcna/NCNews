@@ -4,6 +4,7 @@ const db = require("../db/connection");
 const testData = require("../db/data/test-data/index")
 const seed = require("../db/seeds/seed");
 
+
 beforeEach(() => {
     return seed(testData)
 })
@@ -47,4 +48,40 @@ test("handles invalid endpoints", () => {
         });
 });
 
+describe("GET /api/articles/:id", () => {
+    it("responds with an article for a valid ID", () => {
+        return request(app)
+            .get('/api/articles/1')
+            .expect(200)
+            .expect("Content-Type", /json/)
+            .then((result) => {
+                expect(Object.keys(result.body)).toHaveLength(8);
+                expect(result.body).toHaveProperty("author");
+                expect(typeof result.body.author).toBe("string");
+                expect(result.body).toHaveProperty("title");
+                expect(typeof result.body.title).toBe("string");
+                expect(result.body).toHaveProperty("article_id");
+                expect(typeof result.body.article_id).toBe("number");
+                expect(result.body).toHaveProperty("body");
+                expect(typeof result.body.body).toBe("string");
+                expect(result.body).toHaveProperty("topic");
+                expect(typeof result.body.topic).toBe("string");
+                expect(result.body).toHaveProperty("created_at");
+                expect(typeof result.body.created_at).toBe("string");
+                expect(result.body).toHaveProperty("votes");
+                expect(typeof result.body.votes).toBe("number");
+                expect(result.body).toHaveProperty("article_img_url");
+                expect(typeof result.body.article_img_url).toBe("string");
+            });
+    });
 
+    it("returns a custom 404 error for an invalid article ID", () => {
+        return request(app)
+            .get('/api/articles/100000')
+            .expect(404)
+            .expect("Content-Type", /json/)
+            .then((result) => {
+                expect(result.body).toEqual({ message: "Article not found" });
+            });
+    });
+});
