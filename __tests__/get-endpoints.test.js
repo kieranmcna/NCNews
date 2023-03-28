@@ -39,7 +39,7 @@ test("responds with an array of topic objects with at least one topic", () => {
             expect(Array.isArray(result.body)).toBe(true);
         });
 });
-test("handles invalid endpoints", () => {
+test("Handles invalid endpoint", () => {
     return request(app)
         .get("/api/invalid-endpoint")
         .then((result) => {
@@ -50,32 +50,23 @@ test("handles invalid endpoints", () => {
 
 describe("GET /api/articles/:id", () => {
     it("responds with an article for a valid ID", () => {
+        let expectedArticle = testData.articleData[0];
+        const createdAtTimestamp = expectedArticle.created_at;
+        const adjustedTimestamp = createdAtTimestamp - (3600 * 1000);
+        const adjustedCreatedAt = new Date(adjustedTimestamp).toJSON();
+        //adjust the timestamp from BST to match the format of the timestamp in the database which is UTC
+        expectedArticle = { ...expectedArticle, created_at: adjustedCreatedAt };
         return request(app)
             .get('/api/articles/1')
             .expect(200)
             .expect("Content-Type", /json/)
             .then((result) => {
                 expect(Object.keys(result.body)).toHaveLength(8);
-                expect(result.body).toHaveProperty("author");
-                expect(typeof result.body.author).toBe("string");
-                expect(result.body).toHaveProperty("title");
-                expect(typeof result.body.title).toBe("string");
-                expect(result.body).toHaveProperty("article_id");
-                expect(typeof result.body.article_id).toBe("number");
-                expect(result.body).toHaveProperty("body");
-                expect(typeof result.body.body).toBe("string");
-                expect(result.body).toHaveProperty("topic");
-                expect(typeof result.body.topic).toBe("string");
-                expect(result.body).toHaveProperty("created_at");
-                expect(typeof result.body.created_at).toBe("string");
-                expect(result.body).toHaveProperty("votes");
-                expect(typeof result.body.votes).toBe("number");
-                expect(result.body).toHaveProperty("article_img_url");
-                expect(typeof result.body.article_img_url).toBe("string");
+                expect(result.body).toMatchObject(expectedArticle);
             });
     });
 
-    it("returns a custom 404 error for an invalid article ID", () => {
+    it("returns a custom 404 error for a valid but non-existent article ID", () => {
         return request(app)
             .get('/api/articles/100000')
             .expect(404)
@@ -84,4 +75,13 @@ describe("GET /api/articles/:id", () => {
                 expect(result.body).toEqual({ message: "Article not found" });
             });
     });
+});
+
+test("Handles invalid endpoint", () => {
+    return request(app)
+        .get("/api/reviews/banana")
+        .then((result) => {
+            expect(result.status).toBe(404);
+            expect(result.body).toEqual({ message: "Not found" });
+        });
 });
