@@ -50,12 +50,16 @@ test("Handles invalid endpoint", () => {
 
 describe("GET /api/articles/:id", () => {
     it("responds with an article for a valid ID", () => {
-        let expectedArticle = testData.articleData[0];
-        const createdAtTimestamp = expectedArticle.created_at;
-        const adjustedTimestamp = createdAtTimestamp - (3600 * 1000);
-        const adjustedCreatedAt = new Date(adjustedTimestamp).toJSON();
-        //adjust the timestamp from BST to match the format of the timestamp in the database which is UTC
-        expectedArticle = { ...expectedArticle, created_at: adjustedCreatedAt };
+        let expectedArticle = {
+            article_id: 1,
+            title: 'Living in the shadow of a great man',
+            topic: 'mitch',
+            author: 'butter_bridge',
+            body: 'I find this existence challenging',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 100,
+            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+        }
         return request(app)
             .get('/api/articles/1')
             .expect(200)
@@ -63,6 +67,7 @@ describe("GET /api/articles/:id", () => {
             .then((result) => {
                 expect(Object.keys(result.body)).toHaveLength(8);
                 expect(result.body).toMatchObject(expectedArticle);
+                expect(result.body).toEqual(expectedArticle);
             });
     });
 
