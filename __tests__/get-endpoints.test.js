@@ -3,6 +3,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const testData = require("../db/data/test-data/index")
 const seed = require("../db/seeds/seed");
+const sorted = require("jest-sorted");
 
 
 beforeEach(() => {
@@ -101,6 +102,7 @@ describe("GET /api/articles", () => {
                 const articles = body;
                 expect(Array.isArray(articles)).toBe(true);
                 expect(Object.keys(articles[0])).toHaveLength(9);
+                expect(articles).toBeSorted("created_at", { descending: true });
                 articles.forEach((article) => {
                     expect(article).toHaveProperty("article_id", expect.any(Number));
                     expect(article).toHaveProperty("title", expect.any(String));
