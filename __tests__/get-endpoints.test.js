@@ -3,8 +3,6 @@ const app = require("../app");
 const db = require("../db/connection");
 const testData = require("../db/data/test-data/index")
 const seed = require("../db/seeds/seed");
-const sorted = require("jest-sorted");
-
 
 beforeEach(() => {
     return seed(testData)
@@ -102,7 +100,7 @@ describe("GET /api/articles", () => {
                 const articles = body;
                 expect(Array.isArray(articles)).toBe(true);
                 expect(Object.keys(articles[0])).toHaveLength(9);
-                expect(articles).toBeSorted("created_at", { descending: true });
+                expect(articles).toBeSortedBy("created_at", { descending: true });
                 articles.forEach((article) => {
                     expect(article).toHaveProperty("article_id", expect.any(Number));
                     expect(article).toHaveProperty("title", expect.any(String));
@@ -142,3 +140,51 @@ test("Handles invalid endpoint", () => {
         });
 });
 });
+
+describe("GET /api/articles/:article_id/comments", () => {
+    test("responds with an array of comments for the given article_id", () => {
+        return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then((result) => {
+                const comments = result.body;
+                expect(Array.isArray(comments)).toBe(true);
+                expect(Object.keys(comments[0])).toHaveLength(6);
+                expect(comments).toBeSortedBy("created_at", { descending: true });
+                comments.forEach((comment) => {
+                    expect(comment).toHaveProperty("comment_id", expect.any(Number));
+                    expect(comment).toHaveProperty("body", expect.any(String));
+                    expect(comment).toHaveProperty("article_id", expect.any(Number));
+                    expect(comment).toHaveProperty("author", expect.any(String));
+                    expect(comment).toHaveProperty("votes", expect.any(Number));
+                    expect(comment).toHaveProperty("created_at", expect.any(String));
+                });
+            });
+    })
+
+    test("Respond with custom error when an article exists but there is no comments for that article", () => {
+        return request(app)
+            .get("/api/articles/7/comments")
+            .expect(404)
+            .then((result) => {
+                expect(result.body).toEqual({ message: "No comments found for this article" });
+            });
+    })
+    test("Handles valid but non existant article_id and lets the user know the article doesn't exist", () => {
+        return request(app)
+            .get("/api/articles/7000/comments")
+            .then((result) => {
+                expect(result.status).toBe(404);
+                expect(result.body).toEqual({ message: "Article not found" });
+            });
+    });
+    test("Handles invalid endpoint", () => {
+        return request(app)
+            .get("/api/articles/1/reviews")
+            .then((result) => {
+                expect(result.status).toBe(404);
+                expect(result.body).toEqual({ message: "Not found" });
+            });
+    })
+});
+
