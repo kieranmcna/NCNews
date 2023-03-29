@@ -3,6 +3,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const testData = require("../db/data/test-data/index")
 const seed = require("../db/seeds/seed");
+const sorted = require("jest-sorted");
 
 
 beforeEach(() => {
@@ -49,7 +50,7 @@ test("Handles invalid endpoint", () => {
 });
 
 describe("GET /api/articles/:id", () => {
-    it("responds with an article for a valid ID", () => {
+    test("responds with an article for a valid ID", () => {
         const expectedArticle = {
             article_id: 1,
             title: 'Living in the shadow of a great man',
@@ -71,7 +72,7 @@ describe("GET /api/articles/:id", () => {
             });
     });
 
-    it("returns a custom 404 error for a valid but non-existent article ID", () => {
+    test("returns a custom 404 error for a valid but non-existent article ID", () => {
         return request(app)
             .get('/api/articles/100000')
             .expect(404)
@@ -80,13 +81,64 @@ describe("GET /api/articles/:id", () => {
                 expect(result.body).toEqual({ message: "Article not found" });
             });
     });
+
+
+    test("Handles invalid endpoint", () => {
+        return request(app)
+            .get("/api/reviews/banana")
+            .then((result) => {
+                expect(result.status).toBe(404);
+                expect(result.body).toEqual({ message: "Not found" });
+            });
+    });
 });
 
+describe("GET /api/articles", () => {
+    test("responds with an array of article objects", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+                const articles = body;
+                expect(Array.isArray(articles)).toBe(true);
+                expect(Object.keys(articles[0])).toHaveLength(9);
+                expect(articles).toBeSorted("created_at", { descending: true });
+                articles.forEach((article) => {
+                    expect(article).toHaveProperty("article_id", expect.any(Number));
+                    expect(article).toHaveProperty("title", expect.any(String));
+                    expect(article).toHaveProperty("topic", expect.any(String));
+                    expect(article).toHaveProperty("author", expect.any(String));
+                    expect(article).toHaveProperty("body", expect.any(String));
+                    expect(article).toHaveProperty("created_at", expect.any(String));
+                    expect(article).toHaveProperty("article_img_url", expect.any(String));
+                    expect(article).toHaveProperty("comment_count", expect.any(String));
+                });
+            });
+    })
+
+    test("responds with correct comment count for each article", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then((result) => {
+                const articleId = 3;
+                const commentCounts = testData.commentData.reduce((count, comment) => {
+                    if (comment.article_id === articleId) {
+                        return count + 1;
+                    } else {
+                        return count;
+                    }
+                }, 0);
+
+                expect(commentCounts).toBe(Number(result.body[0].comment_count));
+            });
+    });
 test("Handles invalid endpoint", () => {
     return request(app)
-        .get("/api/reviews/banana")
+        .get("/api/arcticles")
         .then((result) => {
             expect(result.status).toBe(404);
             expect(result.body).toEqual({ message: "Not found" });
         });
+});
 });
