@@ -50,7 +50,7 @@ test("Handles invalid endpoint", () => {
 
 describe("GET /api/articles/:id", () => {
     it("responds with an article for a valid ID", () => {
-        let expectedArticle = {
+        const expectedArticle = {
             article_id: 1,
             title: 'Living in the shadow of a great man',
             topic: 'mitch',
