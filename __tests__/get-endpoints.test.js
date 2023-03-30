@@ -162,10 +162,10 @@ describe("GET /api/articles/:article_id/comments", () => {
             });
     })
 
-    test("Respond with custom error when an article exists but there is no comments for that article", () => {
+    test("Respond with custom 200 error when an article exists but there is no comments for that article", () => {
         return request(app)
             .get("/api/articles/7/comments")
-            .expect(404)
+            .expect(200)
             .then((result) => {
                 expect(result.body).toEqual({ message: "No comments found for this article" });
             });
@@ -178,6 +178,15 @@ describe("GET /api/articles/:article_id/comments", () => {
                 expect(result.body).toEqual({ message: "Article not found" });
             });
     });
+    test("Handles invalid article_id", () => {
+        return request(app)
+            .get("/api/articles/banana/comments")
+            .then((result) => {
+                expect(result.status).toBe(400);
+                expect(result.body).toEqual({ message: "Invalid Article ID" });
+            });
+    })
+
     test("Handles invalid endpoint", () => {
         return request(app)
             .get("/api/articles/1/reviews")
@@ -186,5 +195,6 @@ describe("GET /api/articles/:article_id/comments", () => {
                 expect(result.body).toEqual({ message: "Not found" });
             });
     })
-});
+})
+
 
