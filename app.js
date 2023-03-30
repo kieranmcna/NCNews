@@ -1,12 +1,14 @@
 const express = require("express");
 const app = express();
-const { sendTopics, invalidEndpoint, sendArticleInfo, sendAllArticles } = require("./controller/get.controller");
+const { sendTopics, invalidEndpoint, sendArticleInfo, sendAllArticles, sendComments } = require("./controller/get.controller");
 
 app.get("/api/topics/", sendTopics)
 
 app.get("/api/articles/:articleId", sendArticleInfo)
 
 app.get("/api/articles", sendAllArticles)
+
+app.get("/api/articles/:articleId/comments", sendComments)
 
 app.use((error, request, response, next) => {
     if (error.status && error.msg) {
