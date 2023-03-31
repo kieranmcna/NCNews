@@ -1,4 +1,4 @@
-const { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments } = require("../model/get.model")
+const { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments, updateComments } = require("../model/model")
 
 const sendTopics = (request, response) => {
     selectTopics().then((result) => response.status(200).send(result))
@@ -47,9 +47,21 @@ const postComments = (request, response, next) => {
         });
 
 }
+
+const patchComments = (request, response, next) => {
+    const { articleId } = request.params;
+    const { inc_votes } = request.body;
+    return updateComments(request, inc_votes, articleId)
+        .then((updatedComment) => {
+            response.status(200).send({ updatedComment })
+        })
+        .catch((error) => {
+            next(error);
+        })
+}
 const invalidEndpoint = (request, response) => {
     response.status(404).send({ "message": "Not found" })
 }
 
-module.exports = { sendTopics, invalidEndpoint, sendArticleInfo, sendAllArticles, sendComments, postComments }
+module.exports = { sendTopics, invalidEndpoint, sendArticleInfo, sendAllArticles, sendComments, postComments, patchComments }
 

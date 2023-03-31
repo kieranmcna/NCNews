@@ -1,3 +1,4 @@
+const { promises } = require("dns");
 const { query } = require("../db/connection");
 const db = require("../db/connection");
 
@@ -11,8 +12,8 @@ const selectArticleId = (id) => {
     }
     return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [id])
         .then((result) => {
-        if (result.rowCount === 0) {
-            return Promise.reject({ status: 404, msg: "Article not found" })
+            if (result.rowCount === 0) {
+                return Promise.reject({ status: 404, msg: "Article not found" })
             }
             return result.rows[0];
         })
@@ -51,8 +52,50 @@ const addComments = (request, author, body, article_id) => {
             return postedComment.rows[0];
         })
         .catch((error) => {
-            console.log(error);
             throw error;
         });
 };
-module.exports = { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments }
+
+const checkValidArticleId = (article_id) => {
+    if (isNaN(article_id)) {
+        return Promise.reject({ status: 400, msg: "Invalid Article ID" })
+    }
+}
+
+const checkValidLength = (input) => {
+    if (input.length < 1) {
+        return Promise.reject({ status: 400, msg: "Invalid input, the input length must be greater then 0" })
+    }
+}
+
+const numberCheck = (input) => {
+    if (isNaN(input)) {
+        return Promise.reject({ status: 400, msg: "Invalid input, the input must be a number" })
+    }
+}
+
+const updateComments = (request, inc_votes, article_id) => {
+    const stringQuery = `
+    UPDATE comments
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *;
+    `;
+    return Promise.all([
+        checkValidArticleId(article_id), numberCheck(inc_votes), checkValidLength(inc_votes)
+    ])
+        .then(() => {
+            return db.query(stringQuery, [inc_votes, +article_id])
+        })
+        .then((updatedComment) => {
+            console.log(updatedComment.rows[0]);
+            return updatedComment.rows[0];
+        })
+        .catch((error) => {
+            throw (error);
+        });
+
+}
+
+
+module.exports = { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments, updateComments }

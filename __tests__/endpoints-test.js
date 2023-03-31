@@ -131,14 +131,14 @@ describe("GET /api/articles", () => {
                 expect(commentCounts).toBe(Number(result.body[0].comment_count));
             });
     });
-test("Handles invalid endpoint", () => {
-    return request(app)
-        .get("/api/arcticles")
-        .then((result) => {
-            expect(result.status).toBe(404);
-            expect(result.body).toEqual({ message: "Not found" });
-        });
-});
+    test("Handles invalid endpoint", () => {
+        return request(app)
+            .get("/api/arcticles")
+            .then((result) => {
+                expect(result.status).toBe(404);
+                expect(result.body).toEqual({ message: "Not found" });
+            });
+    });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
@@ -271,3 +271,59 @@ describe("POST /api/articles/:article_id/comments", () => {
             })
     })
 })
+describe("PATCH /api/articles/:article_id", () => {
+    test("Responds with update article", () => {
+        const updatedArticle = {
+            inc_votes: 1
+        };
+        return request(app)
+            .patch("/api/articles/1")
+            .send(updatedArticle)
+            .expect(200)
+            .then(({ body }) => {
+                console.log(body.updatedComment);
+                expect(body.updatedComment).toEqual(expect.objectContaining({
+                    article_id: 1,
+                    author: "butter_bridge",
+                    body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+                    comment_id: 2,
+                    created_at: expect.any(String),
+                    votes: 15
+                })
+                )
+            });
+    });
+    test("Allows for a negative value to be passed in to decrement the votes", () => {
+        const updatedArticle = {
+            inc_votes: -100
+        };
+        return request(app)
+            .patch("/api/articles/1")
+            .send(updatedArticle)
+            .expect(200)
+            .then(({ body }) => {
+                console.log(body.updatedComment);
+                expect(body.updatedComment).toEqual(expect.objectContaining({
+                    article_id: 1,
+                    author: "butter_bridge",
+                    body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+                    comment_id: 2,
+                    created_at: expect.any(String),
+                    votes: -86
+                })
+                )
+            });
+    })
+    test("Returns an error if the inc_votes property isn't provided", () => {
+        const updatedArticle = {
+            inc_votes: ""
+        };
+        return request(app)
+            .patch("/api/articles/1")
+            .send(updatedArticle)
+            .expect(400)
+            .then((result) => {
+                expect(result.body).toEqual({ message: "An inc_votes value must be provided" });
+            })
+    })
+});
