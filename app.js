@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const { sendTopics, invalidEndpoint, sendArticleInfo, sendAllArticles, sendComments } = require("./controller/get.controller");
+const { sendTopics, invalidEndpoint, sendArticleInfo, sendAllArticles, sendComments, postComments } = require("./controller/get.controller");
+app.use(express.json());
 
 app.get("/api/topics/", sendTopics)
 
@@ -9,6 +10,10 @@ app.get("/api/articles/:articleId", sendArticleInfo)
 app.get("/api/articles", sendAllArticles)
 
 app.get("/api/articles/:articleId/comments", sendComments)
+
+app.post("/api/articles/:articleId/comments", postComments)
+
+// app.patch("/api/articles/:articleId", patchComments)
 
 app.use((error, request, response, next) => {
     if (error.status && error.msg) {

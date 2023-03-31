@@ -2,7 +2,8 @@ To use this repo locally create .env.development & .env.test files with the foll
 .env.development - PGDATABASE=DEV_DB
 .env.test  - PGDATABASE=DEV_TEST_DB
 
-- /api/topics - Returns Topics with Slugs & their descriptions 
-- /api/articles/:articleId - Returns articles with the given article ID
-- /api/articles - Returns a list of all articles
-- /api/articles/:articleId/comments - Returns a list of comments for that article
+- .get /api/topics - Returns Topics with Slugs & their descriptions 
+- .get /api/articles/:articleId - Returns articles with the given article ID
+- .get /api/articles - Returns a list of all articles
+- .get /api/articles/:articleId/comments - Returns a list of comments for that article
+- .post /api/articles/:articleId/comments - Allows users to post comments
