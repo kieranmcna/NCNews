@@ -238,7 +238,6 @@ describe("POST /api/articles/:article_id/comments", () => {
                     .send(commentNoAuthor)
                     .expect(400)
                     .then((result) => {
-                        console.log(result)
                         expect(result.body).toEqual({ message: "A comment & author must be provided" })
                     })
             })
