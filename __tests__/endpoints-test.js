@@ -268,6 +268,15 @@ describe("POST /api/articles/:article_id/comments", () => {
                     })
             })
     })
+    test("Handles invalid endpoint", () => {
+        return request(app)
+            .post("/api/articles/1/reviews")
+            .then((result) => {
+                expect(result.status).toBe(404);
+                expect(result.body).toEqual({ message: "Not found" });
+            });
+    })
+
 })
 describe("PATCH /api/articles/:article_id", () => {
     test("Responds with update article", () => {
@@ -322,6 +331,14 @@ describe("PATCH /api/articles/:article_id", () => {
             .then((result) => {
                 expect(result.body).toEqual({ message: "Invalid input, the input must be a number and the input length must be greater then 0" });
             })
+    })
+    test("Handles invalid endpoint", () => {
+        return request(app)
+            .patch("/api/articles/1/reviews")
+            .then((result) => {
+                expect(result.status).toBe(404);
+                expect(result.body).toEqual({ message: "Not found" });
+            });
     })
 });
 

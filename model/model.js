@@ -1,4 +1,3 @@
-const { query } = require("../db/connection");
 const db = require("../db/connection");
 const { voteValidation, checkValidLength, checkValidArticleId, addCommentValidation, checkExistingArticleId, checkCommentsExist } = require("../utils/utils");
 
