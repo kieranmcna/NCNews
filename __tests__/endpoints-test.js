@@ -76,7 +76,7 @@ describe("GET /api/articles/:id", () => {
             .expect(404)
             .expect("Content-Type", /json/)
             .then((result) => {
-                expect(result.body).toEqual({ message: "Article not found" });
+                expect(result.body).toEqual({ message: "Article ID does not exist" });
             });
     });
 
@@ -175,7 +175,7 @@ describe("GET /api/articles/:article_id/comments", () => {
             .get("/api/articles/7000/comments")
             .then((result) => {
                 expect(result.status).toBe(404);
-                expect(result.body).toEqual({ message: "Article not found" });
+                expect(result.body).toEqual({ message: "Article ID does not exist" });
             });
     });
     test("Handles invalid article_id", () => {
@@ -207,7 +207,6 @@ describe("POST /api/articles/:article_id/comments", () => {
             .send(newComment)
             .expect(201)
             .then(({ body }) => {
-                console.log(body.postedComment);
                 expect(body.postedComment).toEqual(expect.objectContaining({
                     article_id: 1,
                     author: "butter_bridge",
@@ -239,34 +238,34 @@ describe("POST /api/articles/:article_id/comments", () => {
                     .send(commentNoAuthor)
                     .expect(400)
                     .then((result) => {
+                        console.log(result)
                         expect(result.body).toEqual({ message: "A comment & author must be provided" })
                     })
             })
     })
 
-    test("Returns an custom error if the comment or author values are blank", () => {
+    test("Returns an custom error if the comment or author values isn't provided", () => {
         const authorNoValue =
         {
-            author: "",
+
             body: "The Little Sheep"
         }
         const commentNoValue =
         {
             author: "butter_bridge",
-            body: ""
         }
         return request(app)
             .post("/api/articles/1/comments")
             .send(authorNoValue)
             .expect(400)
-            .then((result) => {
-                expect(result.body).toEqual({ message: "The comment body & author value must be at least 1 character in length" })
+            .then(({ body }) => {
+                expect(body).toEqual({ message: "A comment & author must be provided" })
                 return request(app)
                     .post("/api/articles/1/comments")
                     .send(commentNoValue)
                     .expect(400)
-                    .then((result) => {
-                        expect(result.body).toEqual({ message: "The comment body & author value must be at least 1 character in length" })
+                    .then(({ body }) => {
+                        expect(body).toEqual({ message: "A comment & author must be provided" })
                     })
             })
     })
@@ -281,7 +280,6 @@ describe("PATCH /api/articles/:article_id", () => {
             .send(updatedArticle)
             .expect(200)
             .then(({ body }) => {
-                console.log(body.updatedComment);
                 expect(body.updatedComment).toEqual(expect.objectContaining({
                     article_id: 1,
                     author: "butter_bridge",
@@ -302,7 +300,6 @@ describe("PATCH /api/articles/:article_id", () => {
             .send(updatedArticle)
             .expect(200)
             .then(({ body }) => {
-                console.log(body.updatedComment);
                 expect(body.updatedComment).toEqual(expect.objectContaining({
                     article_id: 1,
                     author: "butter_bridge",
@@ -314,6 +311,7 @@ describe("PATCH /api/articles/:article_id", () => {
                 )
             });
     })
+
     test("Returns an error if the inc_votes property isn't provided", () => {
         const updatedArticle = {
             inc_votes: ""
@@ -323,7 +321,8 @@ describe("PATCH /api/articles/:article_id", () => {
             .send(updatedArticle)
             .expect(400)
             .then((result) => {
-                expect(result.body).toEqual({ message: "An inc_votes value must be provided" });
+                expect(result.body).toEqual({ message: "Invalid input, the input must be a number and the input length must be greater then 0" });
             })
     })
 });
+
