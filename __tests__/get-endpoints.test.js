@@ -196,5 +196,78 @@ describe("GET /api/articles/:article_id/comments", () => {
             });
     })
 })
+describe("POST /api/articles/:article_id/comments", () => {
+    test("responds with the posted comment", () => {
+        const newComment = {
+            author: "butter_bridge",
+            body: "This is a test comment."
+        };
+        return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                console.log(body.postedComment);
+                expect(body.postedComment).toEqual(expect.objectContaining({
+                    article_id: 1,
+                    author: "butter_bridge",
+                    body: "This is a test comment.",
+                    comment_id: 19,
+                    created_at: expect.any(String),
+                    votes: 0
+                })
+                )
+            });
+    })
+    test("Returns an error if either author or body property isn't provided", () => {
+        const commentNoBody = {
+            author: "butter_bridge",
+        };
+        const commentNoAuthor =
+        {
+            body: "The Little Sheep"
+        };
+        return request(app)
+            .post("/api/articles/1/comments")
+            .send(commentNoBody)
+            .expect(400)
+            .then((result) => {
+                expect(result.body).toEqual({ message: "A comment & author must be provided" });
 
+                return request(app)
+                    .post("/api/articles/1/comments")
+                    .send(commentNoAuthor)
+                    .expect(400)
+                    .then((result) => {
+                        expect(result.body).toEqual({ message: "A comment & author must be provided" })
+                    })
+            })
+    })
 
+    test("Returns an custom error if the comment or author values are blank", () => {
+        const authorNoValue =
+        {
+            author: "",
+            body: "The Little Sheep"
+        }
+        const commentNoValue =
+        {
+            author: "butter_bridge",
+            body: ""
+        }
+        return request(app)
+            .post("/api/articles/1/comments")
+            .send(authorNoValue)
+            .expect(400)
+            .then((result) => {
+                expect(result.body).toEqual({ message: "The comment body & author value must be at least 1 character in length" })
+                return request(app)
+                    .post("/api/articles/1/comments")
+                    .send(commentNoValue)
+                    .expect(400)
+                    .then((result) => {
+                        expect(result.body).toEqual({ message: "The comment body & author value must be at least 1 character in length" })
+                    })
+            })
+    })
+})

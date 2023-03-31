@@ -1,3 +1,4 @@
+const { query } = require("../db/connection");
 const db = require("../db/connection");
 
 const selectTopics = () => {
@@ -16,8 +17,6 @@ const selectArticleId = (id) => {
             return result.rows[0];
         })
 }
-
-
 const selectAllArticles = () => {
     return db.query(`SELECT art.article_id, art.title, art.topic, art.author, art.body, art.created_at, art.votes, art.article_img_url, COUNT(com.article_id) AS comment_count FROM articles art LEFT JOIN comments com ON art.article_id = com.article_id GROUP BY art.article_id ORDER BY art.created_at DESC;`).then((result) => result.rows)
 }
@@ -29,5 +28,31 @@ const selectComments = (id) => {
         } return result.rows;
     })
 }
-
-module.exports = { selectTopics, selectArticleId, selectAllArticles, selectComments }
+const addComments = (request, author, body, article_id) => {
+    if (!request.body.hasOwnProperty("author") || !request.body.hasOwnProperty("body")) {
+        return Promise.reject({ status: 400, msg: "A comment & author must be provided" })
+    }
+    else if (isNaN(article_id)) {
+        return Promise.reject({ status: 400, msg: "Invalid Article ID" })
+    }
+    else if (request.body.author < 1 || request.body.body < 1) {
+        return Promise.reject({ status: 400, msg: "The comment body & author value must be at least 1 character in length" })
+    }
+    const stringQuery = `
+    INSERT INTO comments
+    (author, body, article_id)
+    VALUES
+    ($1, $2, $3)
+    RETURNING *;
+    `;
+    return db.query(stringQuery, [author, body, +article_id])
+        .then((postedComment) => {
+            console.log(postedComment.rows[0]);
+            return postedComment.rows[0];
+        })
+        .catch((error) => {
+            console.log(error);
+            throw error;
+        });
+};
+module.exports = { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments }
