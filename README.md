@@ -8,3 +8,4 @@ To use this repo locally create .env.development & .env.test files with the foll
 - .get /api/articles/:articleId/comments - Returns a list of comments for that article
 - .post /api/articles/:articleId/comments - Allows users to post comments
 - .delete /api/comments/:commentID - Allows users to delete comments
+-.get /api/users - Shows a list of users
