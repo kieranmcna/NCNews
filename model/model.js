@@ -10,7 +10,7 @@ const selectArticleId = (id) => {
             return result.rows[0];
         })
 }
-const selectAllArticles = () => {
+const selectArticles = () => {
     return db.query(`SELECT art.article_id, art.title, art.topic, art.author, art.body, art.created_at, art.votes, art.article_img_url, COUNT(com.article_id) AS comment_count FROM articles art LEFT JOIN comments com ON art.article_id = com.article_id GROUP BY art.article_id ORDER BY art.created_at DESC;`).then((result) => result.rows)
 }
 
@@ -67,14 +67,22 @@ const removeComment = (comment_id) => {
         })
 }
 
+const sendTopic = (request, topicName) => {
+    return db.query(`SELECT * FROM articles WHERE topic = $1;`, [topicName])
+        .then((result) => {
+            return result.rows;
+        })
+}
+
 module.exports =
 {
     selectTopics,
     selectArticleId,
-    selectAllArticles,
+    selectArticles,
     selectComments,
     addComments,
     updateComments,
     removeComment,
-    selectUsers
+    selectUsers,
+    sendTopic
 }

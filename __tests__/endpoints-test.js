@@ -398,3 +398,34 @@ describe("GET /api/users", () => {
     })
 });
 
+
+
+
+describe("GET /api/articles Provide queries to users", () => {
+    test("Topic query returns articles with the topic selected", () => {
+        return request(app)
+            .get("/api/articles?topic=cats")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toHaveLength(1);
+                expect(body[0]).toEqual(expect.objectContaining({
+                    title: 'UNCOVERED: catspiracy to bring down democracy',
+                    topic: 'cats',
+                    author: 'rogersop',
+                    body: 'Bastet walks amongst us, and the cats are taking arms!',
+                    created_at: expect.any(String),
+                    article_img_url:
+                        'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+                    votes: 0
+                }))
+            })
+    })
+    test("Handle invalid topic query with custom error", () => {
+        return request(app)
+            .get("/api/articles?topic=bananas")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toEqual({ message: "Topic does not exist" })
+            })
+    })
+})

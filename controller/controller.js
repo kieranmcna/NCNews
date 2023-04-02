@@ -1,5 +1,5 @@
-const { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments, updateComments, removeComment, selectUsers } = require("../model/model");
-const { voteValidation, checkValidLength, checkValidArticleId, addCommentValidation, checkExistingArticleId, checkCommentsExist, checkIfNumber, checkCommentsArticleId } = require("../utils/utils");
+const { selectTopics, selectArticleId, selectArticles, selectComments, addComments, updateComments, removeComment, selectUsers, sendTopic } = require("../model/model");
+const { voteValidation, checkValidLength, checkValidArticleId, addCommentValidation, checkExistingArticleId, checkCommentsExist, checkIfNumber, checkCommentsArticleId, checkTopicExists } = require("../utils/utils");
 
 const sendTopics = (request, response) => {
     selectTopics().then((result) => response.status(200).send(result))
@@ -13,10 +13,8 @@ const sendArticleInfo = (request, response, next) => {
     const { articleId } = request.params;
 
     Promise.all([checkExistingArticleId(articleId), checkValidArticleId(articleId)])
-
         .then(() => {
-    selectArticleId(articleId).then((result) => response.status(200).send(result))
-
+            selectArticleId(articleId).then((result) => response.status(200).send(result))
         })
         .catch((error) => {
             next(error);
@@ -24,9 +22,26 @@ const sendArticleInfo = (request, response, next) => {
 }
 
 
-const sendAllArticles = (request, response, next) => {
-    selectAllArticles().then((result) => response.status(200).send(result))
+const sendArticles = (request, response, next) => {
+    const { topic } = request.query;
+
+    if (!topic) {
+        return selectArticles().then((result) => response.status(200).send(result))
+    }
+    else if (topic) {
+        checkTopicExists(topic)
+            .then(() => {
+                return sendTopic(request, topic).then((result) => response.status(200).send(result))
+            })
+
+            .catch((error) => {
+                next(error)
+            })
+    }
 }
+
+
+
 
 const sendComments = (request, response, next) => {
     const { articleId } = request.params;
@@ -102,6 +117,7 @@ const deleteCommentsRequest = (request, response, next) => {
 }
 
 
+
 const invalidEndpoint = (request, response) => {
     response.status(404).send({ "message": "Not found" })
 }
@@ -110,11 +126,11 @@ module.exports = {
     sendTopics,
     invalidEndpoint,
     sendArticleInfo,
-    sendAllArticles,
+    sendArticles,
     sendComments,
     postComments,
     patchComments,
     deleteCommentsRequest,
-    sendUsers
+    sendUsers,
 }
 

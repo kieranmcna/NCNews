@@ -52,6 +52,15 @@ exports.checkCommentsExist = (id) => {
     })
 }
 
+exports.checkTopicExists = (topicName) => {
+    return db.query(`SELECT * FROM topics WHERE slug = $1;`, [topicName])
+        .then((result) => {
+            if (result.rowCount === 0) {
+                return Promise.reject({ status: 200, msg: "Topic does not exist" })
+            }
+        })
+}
+
 exports.checkIfNumber = (input, path) => {
     if (isNaN(input) && path.includes("comments")) {
         return Promise.reject({ status: 400, msg: "Invalid input, the path must include a numbered ID for the comment" })
@@ -59,4 +68,13 @@ exports.checkIfNumber = (input, path) => {
     else if (isNaN(input)) {
         return Promise.reject({ status: 400, msg: "Invalid input, the input must be a number" })
     }
+}
+
+exports.checkTopicExists = (topicName) => {
+    return db.query(`SELECT * FROM topics WHERE slug = $1;`, [topicName])
+        .then((result) => {
+            if (result.rowCount === 0) {
+                return Promise.reject({ status: 200, msg: "Topic does not exist" })
+            }
+        })
 }
