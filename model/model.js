@@ -1,17 +1,13 @@
 const db = require("../db/connection");
-const { voteValidation, checkValidLength, checkValidArticleId, addCommentValidation, checkExistingArticleId, checkCommentsExist } = require("../utils/utils");
 
 const selectTopics = () => {
     return db.query(`SELECT * FROM topics`).then((result) => result.rows)
 }
 
 const selectArticleId = (id) => {
-    return Promise.all([checkExistingArticleId(id), checkValidArticleId(id)])
-        .then(() => {
     return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [id])
         .then((result) => {
             return result.rows[0];
-        })
         })
 }
 const selectAllArticles = () => {
@@ -19,15 +15,12 @@ const selectAllArticles = () => {
 }
 
 const selectComments = (id) => {
-    return checkCommentsExist(id).then(() => {
         return db.query(`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`, [id]).then((result) => {
             return result.rows;
         })
-    })
+
 }
 const addComments = (request, author, body, article_id) => {
-    return Promise.all([addCommentValidation(request), checkValidArticleId(article_id), checkValidLength(article_id, author, body)])
-        .then(() => {
     const stringQuery = `
     INSERT INTO comments
     (author, body, article_id)
@@ -39,7 +32,6 @@ const addComments = (request, author, body, article_id) => {
         .then((postedComment) => {
             return postedComment.rows[0];
         })
-        })
 }
 const updateComments = (request, inc_votes, article_id) => {
     const stringQuery = `
@@ -48,17 +40,32 @@ const updateComments = (request, inc_votes, article_id) => {
     WHERE article_id = $2
     RETURNING *;
     `;
-    return Promise.all([
-        checkValidArticleId(article_id), voteValidation(inc_votes)
-    ])
-        .then(() => {
-            return db.query(stringQuery, [inc_votes, +article_id])
-        })
+    return db.query(stringQuery, [inc_votes, +article_id])
         .then((updatedComment) => {
             return updatedComment.rows[0];
         })
 
 }
 
+const removeComment = (comment_id) => {
+    const stringQuery = `
+    DELETE FROM comments
+    WHERE comment_id = $1
+    RETURNING *;
+    `;
+    return db.query(stringQuery, [comment_id])
+        .then((deletedComment) => {
+            return deletedComment.rows[0];
+        })
+}
 
-module.exports = { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments, updateComments }
+module.exports =
+{
+    selectTopics,
+    selectArticleId,
+    selectAllArticles,
+    selectComments,
+    addComments,
+    updateComments,
+    removeComment
+}

@@ -341,4 +341,35 @@ describe("PATCH /api/articles/:article_id", () => {
             });
     })
 });
+describe("DELETE /api/comments/:comment_id", () => {
+    test("Deletes a comment by comment_id", () => {
+        return request(app)
+            .delete("/api/comments/1")
+            .expect(204)
+    })
+})
+test("Handles invalid comment_id", () => {
+    return request(app)
+        .delete("/api/comments/banana")
+        .then((result) => {
+            expect(result.status).toBe(400);
+            expect(result.body).toEqual({ message: "Invalid input, the path must include a numbered ID for the comment" });
+        });
+})
+test("Handles valid but non existant comment_id and lets the user know the comment doesn't exist", () => {
+    return request(app)
+        .delete("/api/comments/7000")
+        .then((result) => {
+            expect(result.status).toBe(200);
+            expect(result.body).toEqual({ message: "Comment ID does not exist" });
+        });
+});
+test("Handles invalid endpoint", () => {
+    return request(app)
+        .delete("/api/comments/1/reviews")
+        .then((result) => {
+            expect(result.status).toBe(404);
+            expect(result.body).toEqual({ message: "Not found" });
+        });
+})
 

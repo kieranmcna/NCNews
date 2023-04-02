@@ -36,10 +36,27 @@ exports.checkValidLength = (input, ...extraInput) => {
     }
 }
 
-exports.checkCommentsExist = (id) => {
+exports.checkCommentsArticleId = (id) => {
     return db.query(`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`, [id]).then((result) => {
         if (result.rowCount === 0) {
             return Promise.reject({ status: 200, msg: "No comments found for this article" })
         }
     })
+}
+
+exports.checkCommentsExist = (id) => {
+    return db.query(`SELECT * FROM comments WHERE comment_id = $1 ORDER BY created_at DESC;`, [id]).then((result) => {
+        if (result.rowCount === 0) {
+            return Promise.reject({ status: 200, msg: "Comment ID does not exist" })
+        }
+    })
+}
+
+exports.checkIfNumber = (input, path) => {
+    if (isNaN(input) && path.includes("comments")) {
+        return Promise.reject({ status: 400, msg: "Invalid input, the path must include a numbered ID for the comment" })
+    }
+    else if (isNaN(input)) {
+        return Promise.reject({ status: 400, msg: "Invalid input, the input must be a number" })
+    }
 }
