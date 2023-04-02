@@ -372,4 +372,29 @@ test("Handles invalid endpoint", () => {
             expect(result.body).toEqual({ message: "Not found" });
         });
 })
+describe("GET /api/users", () => {
+    test("Responds with an array of users", () => {
+        return request(app)
+            .get("/api/users")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toHaveLength(4);
+                expect(body[0]).toEqual(expect.objectContaining({
+                    username: "butter_bridge",
+                    name: "jonny",
+                    avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+                })
+                )
+            });
+    });
+
+    test("Handles invalid endpoint", () => {
+        return request(app)
+            .get("/api/users/reviews")
+            .then((result) => {
+                expect(result.status).toBe(404);
+                expect(result.body).toEqual({ message: "Not found" });
+            });
+    })
+});
 

@@ -8,7 +8,8 @@ const {
     sendComments,
     postComments,
     patchComments,
-    deleteCommentsRequest
+    deleteCommentsRequest,
+    sendUsers
 } = require("./controller/controller");
 
 app.use(express.json());
@@ -26,6 +27,8 @@ app.post("/api/articles/:articleId/comments", postComments)
 app.patch("/api/articles/:articleId", patchComments)
 
 app.delete("/api/comments/:commentId", deleteCommentsRequest)
+
+app.get("/api/users", sendUsers)
 
 app.use((error, request, response, next) => {
     if (error.status && error.msg) {

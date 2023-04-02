@@ -1,7 +1,12 @@
-const { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments, updateComments, removeComment } = require("../model/model");
+const { selectTopics, selectArticleId, selectAllArticles, selectComments, addComments, updateComments, removeComment, selectUsers } = require("../model/model");
 const { voteValidation, checkValidLength, checkValidArticleId, addCommentValidation, checkExistingArticleId, checkCommentsExist, checkIfNumber, checkCommentsArticleId } = require("../utils/utils");
+
 const sendTopics = (request, response) => {
     selectTopics().then((result) => response.status(200).send(result))
+}
+
+const sendUsers = (request, response) => {
+    selectUsers().then((result) => response.status(200).send(result))
 }
 
 const sendArticleInfo = (request, response, next) => {
@@ -17,6 +22,7 @@ const sendArticleInfo = (request, response, next) => {
             next(error);
         })
 }
+
 
 const sendAllArticles = (request, response, next) => {
     selectAllArticles().then((result) => response.status(200).send(result))
@@ -95,6 +101,7 @@ const deleteCommentsRequest = (request, response, next) => {
 
 }
 
+
 const invalidEndpoint = (request, response) => {
     response.status(404).send({ "message": "Not found" })
 }
@@ -107,6 +114,7 @@ module.exports = {
     sendComments,
     postComments,
     patchComments,
-    deleteCommentsRequest
+    deleteCommentsRequest,
+    sendUsers
 }
 
