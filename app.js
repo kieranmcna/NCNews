@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-app.use(cors());
 const app = express();
 const {
   sendTopics,
@@ -13,6 +12,7 @@ const {
   deleteCommentsRequest,
   sendUsers,
 } = require("./controller/controller");
+app.use(cors());
 
 app.use(express.json());
 
