@@ -1,5 +1,4 @@
 const express = require("express");
-const cors = require("cors");
 const app = express();
 const {
   sendTopics,
@@ -12,10 +11,11 @@ const {
   deleteCommentsRequest,
   sendUsers,
 } = require("./controller/controller");
-
-app.use(express.json());
+const cors = require("cors");
 
 app.use(cors());
+
+app.use(express.json());
 
 app.get("/api/topics/", sendTopics);
 
