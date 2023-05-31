@@ -13,9 +13,9 @@ const {
   sendUsers,
 } = require("./controller/controller");
 
-app.use(cors());
-
 app.use(express.json());
+
+app.use(cors());
 
 app.get("/api/topics/", sendTopics);
 
