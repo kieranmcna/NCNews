@@ -12,6 +12,7 @@ const {
   deleteCommentsRequest,
   sendUsers,
 } = require("./controller/controller");
+
 app.use(cors());
 
 app.use(express.json());
